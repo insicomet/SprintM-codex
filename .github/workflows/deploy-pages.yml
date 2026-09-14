@@ -29,7 +29,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run verify
+      # Full verify runs locally and in the main CI workflow; Pages only needs a production build.
+      - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

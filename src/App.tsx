@@ -1342,82 +1342,36 @@ export function App() {
         </p>
         {frameTakeoff ? (
           <>
-            <dl className="result-list">
-              <dt>Кол-во рам</dt>
-              <dd>{frameTakeoff.frameCount} шт.</dd>
-              <dt>Колонны</dt>
-              <dd>
-                {frameTakeoff.column.totalLength_m.toFixed(1)} м
-                {frameTakeoff.column.totalMass_kg !== null
-                  ? ` — ${frameTakeoff.column.totalMass_kg.toFixed(0)} кг`
-                  : " — масса неизвестна (нет в прайс-листе)"}
-              </dd>
-              <dt>Балки</dt>
-              <dd>
-                {frameTakeoff.beam.totalLength_m.toFixed(1)} м
-                {frameTakeoff.beam.totalMass_kg !== null
-                  ? ` — ${frameTakeoff.beam.totalMass_kg.toFixed(0)} кг`
-                  : " — масса неизвестна (нет в прайс-листе)"}
-              </dd>
+            <div className="takeoff-overview">
+              <div><span>Рамы</span><strong>{frameTakeoff.frameCount} шт.</strong></div>
+              <div><span>Металл каркаса</span><strong>{frameTakeoff.totalFrameMass_kg !== null ? `${frameTakeoff.totalFrameMass_kg.toFixed(0)} кг` : "—"}</strong></div>
+              <div><span>Крепёж и профили</span><strong>{frameFasteners ? `${Math.round(frameFasteners.totalCost + (frameExtras?.totalCost ?? 0)).toLocaleString("ru-RU")} ₽` : "—"}</strong></div>
+            </div>
+            <div className="takeoff-table-wrap">
+              <table className="takeoff-table">
+                <thead>
+                  <tr><th>Позиция</th><th>Количество</th><th>Масса</th><th>Стоимость</th></tr>
+                </thead>
+                <tbody>
+                  <tr className="takeoff-group"><th colSpan={4}>Основной каркас</th></tr>
+                  <tr><td>Колонны</td><td>{frameTakeoff.column.totalLength_m.toFixed(1)} м</td><td>{frameTakeoff.column.totalMass_kg !== null ? `${frameTakeoff.column.totalMass_kg.toFixed(0)} кг` : "—"}</td><td>—</td></tr>
+                  <tr><td>Балки</td><td>{frameTakeoff.beam.totalLength_m.toFixed(1)} м</td><td>{frameTakeoff.beam.totalMass_kg !== null ? `${frameTakeoff.beam.totalMass_kg.toFixed(0)} кг` : "—"}</td><td>—</td></tr>
+                  <tr className="takeoff-group"><th colSpan={4}>Профили и фасонки</th></tr>
               {frameExtras?.items.map((item) => (
-                <Fragment key={item.name}>
-                  <dt>{item.name}</dt>
-                  <dd>
-                    {item.count.toFixed(1)} {item.unit} — {item.mass_kg.toFixed(1)} кг —{" "}
-                    {Math.round(item.cost).toLocaleString("ru-RU")} ₽
-                  </dd>
-                </Fragment>
+                <tr key={item.name}><td>{item.name}</td><td>{item.count.toFixed(1)} {item.unit}</td><td>{item.mass_kg.toFixed(1)} кг</td><td>{Math.round(item.cost).toLocaleString("ru-RU")} ₽</td></tr>
               ))}
+                  <tr className="takeoff-group"><th colSpan={4}>Крепёж</th></tr>
               {frameFasteners?.items.map((item) => (
-                <Fragment key={item.name}>
-                  <dt>{item.name}</dt>
-                  <dd>
-                    {Math.round(item.count)} шт — {item.mass_kg.toFixed(1)} кг —{" "}
-                    {Math.round(item.cost).toLocaleString("ru-RU")} ₽
-                    {item.isEstimated ? " (ставка не подтверждена для этого пролёта)" : ""}
-                  </dd>
-                </Fragment>
+                <tr key={item.name}><td>{item.name}{item.isEstimated && <small className="takeoff-note">оценка</small>}</td><td>{Math.round(item.count)} шт.</td><td>{item.mass_kg.toFixed(1)} кг</td><td>{Math.round(item.cost).toLocaleString("ru-RU")} ₽</td></tr>
               ))}
+                  <tr className="takeoff-group"><th colSpan={4}>Связи и дополнительные позиции</th></tr>
               {bracing?.items.map((item) => (
-                <Fragment key={item.name}>
-                  <dt>{item.name}</dt>
-                  <dd>
-                    {item.mass_t === null || item.cost === null ? (
-                      <span className="incomplete">нет веса фасонок для этого пролёта</span>
-                    ) : (
-                      <>
-                        {item.mass_t.toFixed(3)} т — {Math.round(item.cost).toLocaleString("ru-RU")} ₽
-                      </>
-                    )}
-                  </dd>
-                </Fragment>
+                <tr key={item.name}><td>{item.name}</td><td>—</td><td>{item.mass_t === null ? "—" : `${(item.mass_t * 1000).toFixed(0)} кг`}</td><td>{item.cost === null ? "—" : `${Math.round(item.cost).toLocaleString("ru-RU")} ₽`}</td></tr>
               ))}
-              <dt>Гориз. связи по подборщику</dt>
-              <dd className="incomplete">
-                {horizTiesMass_kg !== null
-                  ? `${horizTiesMass_kg.toFixed(0)} кг — другой источник, в итог не входит`
-                  : "нет данных для этой комбинации"}
-              </dd>
-              <dt>Итого металл каркаса</dt>
-              <dd>
-                {frameTakeoff.totalFrameMass_kg !== null
-                  ? `${(
-                      frameTakeoff.totalFrameMass_kg +
-                      (frameFasteners?.totalMass_kg ?? 0) +
-                      (frameExtras?.totalMass_kg ?? 0) +
-                      (bracing?.totalMass_kg ?? 0)
-                    ).toFixed(0)} кг`
-                  : "—"}
-              </dd>
-              <dt>Итого крепёж и профили</dt>
-              <dd>
-                {frameFasteners
-                  ? `${Math.round(
-                      frameFasteners.totalCost + (frameExtras?.totalCost ?? 0),
-                    ).toLocaleString("ru-RU")} ₽`
-                  : "—"}
-              </dd>
-            </dl>
+                  <tr><td>Гориз. связи по подборщику <small className="takeoff-note">справочно</small></td><td>—</td><td>{horizTiesMass_kg !== null ? `${horizTiesMass_kg.toFixed(0)} кг` : "—"}</td><td>—</td></tr>
+                </tbody>
+              </table>
+            </div>
           </>
         ) : (
           <p className="error">Нет данных для расчёта ведомости.</p>

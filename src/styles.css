@@ -665,6 +665,17 @@ tr.bill-grand td {
   text-transform: uppercase;
 }
 
+.takeoff-table .takeoff-subtotal td {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.takeoff-table .takeoff-total th,
+.takeoff-table .takeoff-total td {
+  border-top: 2px solid var(--accent);
+  font-weight: 700;
+}
+
 .takeoff-note {
   display: inline-block;
   margin-left: 7px;

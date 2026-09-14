@@ -1512,44 +1512,28 @@ export function App() {
           ведомости. Количество саморезов кровли зависит от числа прогонов (в исходнике оно
           вбивается вручную, у нас берётся из подбора).
         </p>
-        <dl className="result-list">
+        <div className="takeoff-table-wrap">
+          <table className="takeoff-table">
+            <thead><tr><th>Раздел / позиция</th><th>Количество</th><th>Масса</th><th>Стоимость</th></tr></thead>
+            <tbody>
           {[
             ["Стены", wallCladding] as const,
             ["Кровля", roofCladding] as const,
           ].map(([label, section]) =>
             section === null ? null : (
               <Fragment key={label}>
-                <dt className="group-heading">{label}</dt>
-                <dd />
+                <tr className="takeoff-group"><th colSpan={4}>{label}</th></tr>
                 {section.items.map((item) => (
-                  <Fragment key={`${label}-${item.name}`}>
-                    <dt>{item.name}</dt>
-                    <dd>
-                      {item.count.toFixed(1)} {item.unit} — {item.mass_kg.toFixed(1)} кг —{" "}
-                      {item.cost !== null
-                        ? `${Math.round(item.cost).toLocaleString("ru-RU")} ₽`
-                        : "цены нет в прайсе для этой толщины"}
-                    </dd>
-                  </Fragment>
+                  <tr key={`${label}-${item.name}`}><td>{item.name}</td><td>{item.count.toFixed(1)} {item.unit}</td><td>{item.mass_kg.toFixed(1)} кг</td><td>{item.cost !== null ? `${Math.round(item.cost).toLocaleString("ru-RU")} ₽` : "нет цены"}</td></tr>
                 ))}
-                <dt>Накладные расходы (2%)</dt>
-                <dd>
-                  {section.overheadCost !== null
-                    ? `${Math.round(section.overheadCost).toLocaleString("ru-RU")} ₽`
-                    : "—"}
-                </dd>
+                <tr className="takeoff-subtotal"><td>Накладные расходы (2%)</td><td>—</td><td>—</td><td>{section.overheadCost !== null ? `${Math.round(section.overheadCost).toLocaleString("ru-RU")} ₽` : "—"}</td></tr>
               </Fragment>
             ),
           )}
-          <dt>Итого обшивка</dt>
-          <dd>
-            {summary.claddingCost !== null
-              ? `${summary.claddingMass_kg.toFixed(0)} кг — ${Math.round(
-                  summary.claddingCost,
-                ).toLocaleString("ru-RU")} ₽`
-              : "—"}
-          </dd>
-        </dl>
+              <tr className="takeoff-total"><th>Итого обшивка</th><th>—</th><th>{summary.claddingMass_kg.toFixed(0)} кг</th><th>{summary.claddingCost !== null ? `${Math.round(summary.claddingCost).toLocaleString("ru-RU")} ₽` : "—"}</th></tr>
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section className="card">
@@ -1559,24 +1543,13 @@ export function App() {
           профили, С-18, КФ) в обоих проектах обнулены. Делитель 1,9 в формулах — рабочая длина
           двухметрового элемента за вычетом нахлёста.
         </p>
-        <dl className="result-list">
+        <div className="takeoff-table-wrap"><table className="takeoff-table"><thead><tr><th>Позиция</th><th>Количество</th><th>Масса</th><th>Стоимость</th></tr></thead><tbody>
           {wallTrim.items.map((item) => (
-            <Fragment key={item.name}>
-              <dt>{item.name}</dt>
-              <dd>
-                {item.count.toFixed(1)} {item.unit} — {item.mass_kg.toFixed(1)} кг —{" "}
-                {Math.round(item.cost).toLocaleString("ru-RU")} ₽
-              </dd>
-            </Fragment>
+            <tr key={item.name}><td>{item.name}</td><td>{item.count.toFixed(1)} {item.unit}</td><td>{item.mass_kg.toFixed(1)} кг</td><td>{Math.round(item.cost).toLocaleString("ru-RU")} ₽</td></tr>
           ))}
-          <dt>Накладные расходы (2%)</dt>
-          <dd>{Math.round(wallTrim.overheadCost).toLocaleString("ru-RU")} ₽</dd>
-          <dt>Итого стены</dt>
-          <dd>
-            {wallTrim.totalMass_kg.toFixed(1)} кг —{" "}
-            {Math.round(wallTrim.totalCost).toLocaleString("ru-RU")} ₽
-          </dd>
-        </dl>
+          <tr className="takeoff-subtotal"><td>Накладные расходы (2%)</td><td>—</td><td>—</td><td>{Math.round(wallTrim.overheadCost).toLocaleString("ru-RU")} ₽</td></tr>
+          <tr className="takeoff-total"><th>Итого стены</th><th>—</th><th>{wallTrim.totalMass_kg.toFixed(1)} кг</th><th>{Math.round(wallTrim.totalCost).toLocaleString("ru-RU")} ₽</th></tr>
+        </tbody></table></div>
       </section>
 
       <section className="card">
@@ -1587,24 +1560,13 @@ export function App() {
           соответствует поле «Прогон под снегозадержание» в подборе. Профлистовые варианты обшивки
           (С-18, С-44, вент. конька) в обоих проектах отключены, поэтому их здесь нет.
         </p>
-        <dl className="result-list">
+        <div className="takeoff-table-wrap"><table className="takeoff-table"><thead><tr><th>Позиция</th><th>Количество</th><th>Масса</th><th>Стоимость</th></tr></thead><tbody>
           {roofTrim.items.map((item) => (
-            <Fragment key={item.name}>
-              <dt>{item.name}</dt>
-              <dd>
-                {item.count.toFixed(item.count % 1 === 0 ? 0 : 1)} {item.unit} —{" "}
-                {item.mass_kg.toFixed(1)} кг — {Math.round(item.cost).toLocaleString("ru-RU")} ₽
-              </dd>
-            </Fragment>
+            <tr key={item.name}><td>{item.name}</td><td>{item.count.toFixed(item.count % 1 === 0 ? 0 : 1)} {item.unit}</td><td>{item.mass_kg.toFixed(1)} кг</td><td>{Math.round(item.cost).toLocaleString("ru-RU")} ₽</td></tr>
           ))}
-          <dt>Накладные расходы (2%)</dt>
-          <dd>{Math.round(roofTrim.overheadCost).toLocaleString("ru-RU")} ₽</dd>
-          <dt>Итого кровля</dt>
-          <dd>
-            {roofTrim.totalMass_kg.toFixed(1)} кг —{" "}
-            {Math.round(roofTrim.totalCost).toLocaleString("ru-RU")} ₽
-          </dd>
-        </dl>
+          <tr className="takeoff-subtotal"><td>Накладные расходы (2%)</td><td>—</td><td>—</td><td>{Math.round(roofTrim.overheadCost).toLocaleString("ru-RU")} ₽</td></tr>
+          <tr className="takeoff-total"><th>Итого кровля</th><th>—</th><th>{roofTrim.totalMass_kg.toFixed(1)} кг</th><th>{Math.round(roofTrim.totalCost).toLocaleString("ru-RU")} ₽</th></tr>
+        </tbody></table></div>
       </section>
 
       <section className="card">
@@ -1614,24 +1576,13 @@ export function App() {
           ИНСИ на водосток, актуальны на дату исходных файлов. Дробные количества держателей и
           соединителей исходник не округляет — оставлено как есть.
         </p>
-        <dl className="result-list">
+        <div className="takeoff-table-wrap"><table className="takeoff-table"><thead><tr><th>Позиция</th><th>Количество</th><th>Масса</th><th>Стоимость</th></tr></thead><tbody>
           {drainage.items.map((item) => (
-            <Fragment key={item.name}>
-              <dt>{item.name}</dt>
-              <dd>
-                {item.count.toFixed(item.count % 1 === 0 ? 0 : 1)} {item.unit} —{" "}
-                {item.mass_kg.toFixed(1)} кг — {Math.round(item.cost).toLocaleString("ru-RU")} ₽
-              </dd>
-            </Fragment>
+            <tr key={item.name}><td>{item.name}</td><td>{item.count.toFixed(item.count % 1 === 0 ? 0 : 1)} {item.unit}</td><td>{item.mass_kg.toFixed(1)} кг</td><td>{Math.round(item.cost).toLocaleString("ru-RU")} ₽</td></tr>
           ))}
-          <dt>Накладные расходы (2%)</dt>
-          <dd>{Math.round(drainage.overheadCost).toLocaleString("ru-RU")} ₽</dd>
-          <dt>Итого водосток</dt>
-          <dd>
-            {drainage.totalMass_kg.toFixed(1)} кг —{" "}
-            {Math.round(drainage.totalCost).toLocaleString("ru-RU")} ₽
-          </dd>
-        </dl>
+          <tr className="takeoff-subtotal"><td>Накладные расходы (2%)</td><td>—</td><td>—</td><td>{Math.round(drainage.overheadCost).toLocaleString("ru-RU")} ₽</td></tr>
+          <tr className="takeoff-total"><th>Итого водосток</th><th>—</th><th>{drainage.totalMass_kg.toFixed(1)} кг</th><th>{Math.round(drainage.totalCost).toLocaleString("ru-RU")} ₽</th></tr>
+        </tbody></table></div>
       </section>
 
       <section className="card bill-card">

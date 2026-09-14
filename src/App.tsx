@@ -1616,7 +1616,7 @@ export function App() {
           </thead>
           <tbody>
             {[
-              { caption: "Материалы ЗАО «ИНСИ»", sections: bill.materials },
+              { caption: "Материалы «ИНСИ»", sections: bill.materials },
               { caption: "Дополнительные материалы", sections: bill.additional },
             ].map((block) => (
               <Fragment key={block.caption}>

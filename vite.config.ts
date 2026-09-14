@@ -1,10 +1,10 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// `base` matches the GitHub Pages URL path: https://insicomet.github.io/SprintM/
+// Override VITE_BASE_PATH for repository-specific GitHub Pages deployments.
 export default defineConfig({
   plugins: [react()],
-  base: "/SprintM/",
+  base: process.env.VITE_BASE_PATH ?? "/SprintM/",
   build: {
     outDir: "dist",
   },

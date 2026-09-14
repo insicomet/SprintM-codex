@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - claude/start-session-l3r43f
+      - codex/development
   workflow_dispatch:
 
 permissions:
@@ -19,6 +20,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      VITE_BASE_PATH: /SprintM-codex/
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

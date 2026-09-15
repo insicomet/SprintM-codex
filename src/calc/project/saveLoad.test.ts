@@ -10,6 +10,7 @@ import type { ProjectInputs } from "./computeProject";
 
 const inputs: ProjectInputs = {
   city: "Берёзовский, Свердловская область",
+  terrainType: "B",
   span: 18, length_m: 30, height_m: 5,
   gammaN: 1.0, bankK: "auto",
   roofingType: "С-П 150", deckingMark: "С44-1000-0,7",

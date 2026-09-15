@@ -157,6 +157,18 @@ function OpeningGroupsEditor({
               <option value="long">длинная сторона</option>
             </select>
           )}
+          {label === "Окна" && (
+            <label className="opening-scheme">
+              тип окна
+              <select
+                aria-label="тип окна"
+                value={g.windowType ?? 1}
+                onChange={(e) => update(i, { windowType: Number(e.target.value) as OpeningGroup["windowType"] })}
+              >
+                {[1, 2, 3, 4, 5].map((type) => <option key={type} value={type}>тип {type}</option>)}
+              </select>
+            </label>
+          )}
           <button
             type="button"
             className="opening-remove"
@@ -174,6 +186,8 @@ function OpeningGroupsEditor({
 
 export function App() {
   const [city, setCity] = useState("Челябинск");
+  // Тип местности по СП — вход будущего подбора оконных ригелей.
+  const [terrainType, setTerrainType] = useState<"A" | "B" | "C">("B");
   // Ручной ввод нагрузок — для площадок, которых нет в справочнике.
   const [manualMode, setManualMode] = useState(false);
   const [manualSnow, setManualSnow] = useState(1.5);
@@ -246,6 +260,7 @@ export function App() {
     () =>
       computeProject({
         city,
+        terrainType,
         manualClimate: manualMode
           ? { snowLoad_kPa: manualSnow, windDistrict: manualWind, label: city }
           : undefined,
@@ -281,6 +296,7 @@ export function App() {
       }),
     [
       city,
+      terrainType,
       manualMode,
       manualSnow,
       manualWind,
@@ -396,6 +412,7 @@ export function App() {
   /** Разложить исходные данные обратно по полям формы. */
   function applyInputs(next: ProjectInputs) {
     setCity(next.city ?? "");
+    setTerrainType(next.terrainType ?? "B");
     setManualMode(Boolean(next.manualClimate));
     if (next.manualClimate) {
       setManualSnow(next.manualClimate.snowLoad_kPa);
@@ -680,6 +697,17 @@ export function App() {
               </label>
             </>
           )}
+          <label>
+            Тип местности
+            <select value={terrainType} onChange={(e) => setTerrainType(e.target.value as "A" | "B" | "C")}>
+              <option value="A">A — открытая местность</option>
+              <option value="B">B — городская/застроенная</option>
+              <option value="C">C — плотная застройка/лес</option>
+            </select>
+            <span className="field-hint">
+              Передаётся в исходные данные проекта для подбора оконных ригелей; текущие формулы каркаса пока не меняет.
+            </span>
+          </label>
 
           <label>
             Пролёт, м

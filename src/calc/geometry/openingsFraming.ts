@@ -31,6 +31,7 @@
  */
 
 import type { OpeningGroup } from "./openings";
+import { isWindowRigelType, selectWindowRigel, windowRigelFactors, WINDOW_RIGEL_TUBE_PRICE_PER_TON, type WindowRigelFactors, type WindowRigelSelection } from "./windowRigels";
 
 /** Вес одних ворот по ширине, кг (Лист1!Q23:Q24). */
 const GATE_MASS_kg = { under6: 350, over6: 450 } as const;
@@ -49,15 +50,25 @@ export interface OpeningsFramingInput {
   framePitch_m: number;
   /** Есть ли в проекте окна — от них зависит полнота результата. */
   hasWindows: boolean;
+  /** Типы схем окон; один тип на размерную группу. */
+  windows?: readonly OpeningGroup[];
+  /** Нагрузки для инженерного подбора оконных ригелей. */
+  windowWindLoad_kPa?: number;
+  windowVerticalLoad_kPa?: number;
 }
 
 export interface OpeningsFramingMass {
   gates_kg: number;
   doors_kg: number;
+  windows_kg: number;
+  windows_cost: number;
   /** Суммарная масса обрамления, т — слагаемое формулы «Конструкции из труб». */
   total_t: number;
   /** false — в сумме нет обрамления окон, его надо ввести руками. */
   complete: boolean;
+  /** Коэффициенты Excel для заданных групп окон; не заменяет подбор сечения. */
+  windowFactors: Array<WindowRigelFactors & { count: number; width_m: number; height_m: number }>;
+  windowSelections: Array<WindowRigelSelection & { count: number; width_m: number; height_m: number }>;
 }
 
 export function computeOpeningsFraming(input: OpeningsFramingInput): OpeningsFramingMass {
@@ -71,10 +82,42 @@ export function computeOpeningsFraming(input: OpeningsFramingInput): OpeningsFra
   const doors_kg =
     (input.framePitch_m + 4) * input.doorsCount * DOOR_LINTEL_kg_per_m * ALLOWANCE;
 
+  const windowFactors = (input.windows ?? []).flatMap((window) => {
+    const type = window.windowType;
+    if (window.count <= 0 || type === undefined || !isWindowRigelType(type)) return [];
+    return [{ ...windowRigelFactors(type), count: window.count, width_m: window.width_m, height_m: window.height_m }];
+  });
+  const windowSelections = (input.windows ?? []).flatMap((window) => {
+    const type = window.windowType;
+    if (window.count <= 0 || type === undefined || !isWindowRigelType(type)) return [];
+    const selection = selectWindowRigel({
+      type,
+      height_m: window.height_m,
+      framePitch_m: input.framePitch_m,
+      verticalLoad_kPa: input.windowVerticalLoad_kPa ?? 0.42,
+      windLoad_kPa: input.windowWindLoad_kPa ?? 0.44,
+    });
+    return selection ? [{ ...selection, count: window.count, width_m: window.width_m, height_m: window.height_m }] : [];
+  });
+  const windows_kg = windowSelections.reduce(
+    (sum, selection) =>
+      sum +
+      selection.count *
+        (selection.profile.massPerM_kg * selection.lowerLength_m +
+          selection.profile.massPerM_kg * (selection.upperLength_m + 2 * selection.height_m)),
+    0,
+  );
+  const windows_cost = (windows_kg / 1000) * WINDOW_RIGEL_TUBE_PRICE_PER_TON;
+  const hasPositiveWindows = (input.windows ?? []).some((w) => w.count > 0 && w.width_m > 0 && w.height_m > 0);
+
   return {
     gates_kg,
     doors_kg,
-    total_t: (gates_kg + doors_kg) / 1000,
-    complete: !input.hasWindows,
+    windows_kg,
+    windows_cost,
+    total_t: (gates_kg + doors_kg + windows_kg) / 1000,
+    complete: !input.hasWindows || (hasPositiveWindows && windowSelections.length === (input.windows ?? []).filter((w) => w.count > 0 && w.width_m > 0 && w.height_m > 0).length),
+    windowFactors,
+    windowSelections,
   };
 }

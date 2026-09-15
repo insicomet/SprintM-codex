@@ -8,6 +8,8 @@
  * каждый тип проёма — это СПИСОК таких размеров, а не одно число, — как
  * и у неё.
  */
+import type { WindowRigelType } from "./windowRigels";
+
 export interface OpeningGroup {
   count: number;
   width_m: number;
@@ -21,6 +23,8 @@ export interface OpeningGroup {
    * Используется только для ворот; для дверей и окон не имеет смысла.
    */
   onLongWall?: boolean;
+  /** Схема оконного ригеля из Лист1!B8; используется только для окон. */
+  windowType?: WindowRigelType;
 }
 
 /** Минимальная надбавка к ширине ворот для раздвинутой рамы, м. */

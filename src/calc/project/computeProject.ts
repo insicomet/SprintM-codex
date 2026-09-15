@@ -74,6 +74,8 @@ const SECTION_OVERHEAD = 1.02;
 
 export interface ProjectInputs {
   city: string;
+  /** Тип местности по СП (A/B/C). Нужен для подбора оконных ригелей; пока не меняет текущие формулы. */
+  terrainType?: "A" | "B" | "C";
   span: Span;
   length_m: number;
   height_m: number;
@@ -463,6 +465,9 @@ export function computeProject(inputs: ProjectInputs) {
     doorsCount: groupsCount(openings.doors),
     framePitch_m: geometry.framePitch_m,
     hasWindows: openings.windows.some((w) => w.count > 0 && w.width_m > 0),
+    windows: openings.windows,
+    windowWindLoad_kPa: climate.ok ? (climate.value.city.wind.w0Kpa ?? undefined) : undefined,
+    windowVerticalLoad_kPa: 0.42,
   });
   const effectiveExtraTubeMass_t = extraTubeMass_t ?? openingsFraming.total_t;
 

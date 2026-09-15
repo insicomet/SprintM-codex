@@ -99,4 +99,17 @@ describe("computeOpeningsFraming", () => {
     expect(m.total_t).toBeCloseTo(0.84084, 9);
     expect(m.complete).toBe(false);
   });
+
+  it("carries the selected Excel window scheme per size group", () => {
+    const m = computeOpeningsFraming({
+      gates: [], doorsCount: 0, framePitch_m: 6, hasWindows: true,
+      windows: [{ count: 4, width_m: 3, height_m: 1, windowType: 3 }],
+    });
+    expect(m.windowFactors).toEqual([
+      { type: 3, moment: 0.062, length: 0.33, deflection: 0.24, count: 4, width_m: 3, height_m: 1 },
+    ]);
+    expect(m.windowSelections).toHaveLength(1);
+    expect(m.windowSelections[0].profile.massPerM_kg).toBeGreaterThan(0);
+    expect(m.windows_cost).toBeGreaterThan(0);
+  });
 });
